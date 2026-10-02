@@ -1,0 +1,52 @@
+# === Build outputs ===
+backend/target/
+frontend/dist/
+frontend/node_modules/
+frontend/tmp/
+frontend/out-tsc/
+frontend/.angular/
+
+# === Java / Maven ===
+*.class
+*.jar
+*.war
+*.ear
+.mvn/wrapper/maven-wrapper.jar
+
+# === Node ===
+npm-debug.log
+yarn-error.log
+
+# === IDE ===
+.idea/
+*.iws
+*.iml
+*.ipr
+.project
+.classpath
+.settings/
+.nbproject/private/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/
+
+# === Système ===
+.DS_Store
+Thumbs.db
+
+# === Logs ===
+*.log
+logs/
+libpeerconnection.log
+testem.log
+
+# === Secrets / env (jamais commité) ===
+.env
+.env.*
+*.pem
+*.key
+*.p12
+application-secret.properties
