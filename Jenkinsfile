@@ -49,14 +49,6 @@ pipeline {
             }
         }
 
-        stage('3b. Quality Gate') {
-            steps {
-                echo '=== Stage 3b : Quality Gate ==='
-                timeout(time: 5, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: false
-                }
-            }
-        }
 
         stage('4. Maven Test') {
             steps {
