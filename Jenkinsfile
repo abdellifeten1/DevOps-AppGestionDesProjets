@@ -32,27 +32,9 @@ pipeline {
             }
         }
 
-        stage('3. SonarQube Analysis') {
+        stage('3. Maven Test') {
             steps {
-                echo '=== Stage 3 : SonarQube ==='
-                dir('backend') {
-                    withSonarQubeEnv('SonarQube') {
-                        sh '''
-                            mvn sonar:sonar \
-                              -Dsonar.projectKey=DevOps-AppGestionDesProjets \
-                              -Dsonar.projectName=DevOps-AppGestionDesProjets \
-                              -Dsonar.sources=src/main/java \
-                              -Dsonar.login=$SONAR_TOKEN
-                        '''
-                    }
-                }
-            }
-        }
-
-
-        stage('4. Maven Test') {
-            steps {
-                echo '=== Stage 4 : Maven test ==='
+                echo '=== Stage 3 : Maven test + JaCoCo ==='
                 dir('backend') {
                     sh 'mvn test'
                 }
@@ -60,6 +42,24 @@ pipeline {
             post {
                 always {
                     junit 'backend/target/surefire-reports/*.xml'
+                }
+            }
+        }
+
+        stage('4. SonarQube Analysis') {
+            steps {
+                echo '=== Stage 4 : SonarQube (avec coverage) ==='
+                dir('backend') {
+                    withSonarQubeEnv('SonarQube') {
+                        sh '''
+                            mvn sonar:sonar \
+                              -Dsonar.projectKey=DevOps-AppGestionDesProjets \
+                              -Dsonar.projectName=DevOps-AppGestionDesProjets \
+                              -Dsonar.sources=src/main/java \
+                              -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
+                              -Dsonar.login=$SONAR_TOKEN
+                        '''
+                    }
                 }
             }
         }
@@ -112,10 +112,10 @@ pipeline {
             sh 'docker compose logs --tail 30 || true'
         }
         success {
-            echo ' Pipeline terminé.'
+            echo 'Pipeline terminé.'
         }
         failure {
-            echo ' Pipeline échoué.'
+            echo 'Pipeline échoué.'
         }
     }
 }
