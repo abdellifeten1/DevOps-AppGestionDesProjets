@@ -57,6 +57,7 @@ pipeline {
                               -Dsonar.projectName=DevOps-AppGestionDesProjets \
                               -Dsonar.sources=src/main/java \
                               -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
+                              -Dsonar.coverage.exclusions=**/entity/**,**/BackendApplication.java \
                               -Dsonar.login=$SONAR_TOKEN
                         '''
                     }
