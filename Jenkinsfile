@@ -97,26 +97,52 @@ pipeline {
             }
         }
 
-        stage('8. Docker Compose Up') {
+        stage('8. Kubernetes Deploy') {
             steps {
-                echo '=== Stage 8 : Docker compose up ==='
+                echo '=== Stage 8 : Déploiement Kubernetes ==='
+
+                // 1. Arrêter Docker Compose (évite conflits de ports)
                 sh 'docker compose down || true'
-                sh 'docker compose up -d --build'
-                sh 'sleep 30'
-                sh 'docker compose ps'
+
+                // 2. Nettoyer l'ancien déploiement K8s
+                sh 'kubectl delete -f k8s/ --ignore-not-found=true || true'
+                sh 'sleep 5'
+
+                // 3. Namespace
+                sh 'kubectl apply -f k8s/namespace.yaml'
+
+                // 4. MySQL (PV + PVC + Deployment + Service ClusterIP)
+                sh 'kubectl apply -f k8s/mysql.yaml'
+                sh 'kubectl rollout status deployment/mysql -n devops --timeout=180s'
+
+                // 5. Backend (ConfigMap + Secret + Deployment + Service NodePort)
+                sh 'kubectl apply -f k8s/backend.yaml'
+                sh 'kubectl rollout status deployment/backend -n devops --timeout=180s'
+
+                // 6. Frontend (Deployment + Service NodePort)
+                sh 'kubectl apply -f k8s/frontend.yaml'
+                sh 'kubectl rollout status deployment/frontend -n devops --timeout=180s'
+
+                // 7. Vérifications finales
+                sh 'kubectl get pods -n devops'
+                sh 'kubectl get svc -n devops'
             }
         }
     }
 
     post {
         always {
-            sh 'docker compose logs --tail 30 || true'
+            sh 'echo "=== Logs Docker (si Docker Compose utilisé) ==="'
+            sh 'docker compose logs --tail 20 || true'
+            sh 'echo "=== État Kubernetes ==="'
+            sh 'kubectl get pods -n devops || true'
+            sh 'kubectl get svc -n devops || true'
         }
         success {
-            echo 'Pipeline terminé.'
+            echo ' Pipeline terminé avec succès.'
         }
         failure {
-            echo 'Pipeline échoué.'
+            echo ' Pipeline échoué.'
         }
     }
 }
