@@ -117,7 +117,7 @@ pipeline {
 
                 // 5. Backend (ConfigMap + Secret + Deployment + Service NodePort)
                 sh 'kubectl apply -f k8s/backend.yaml'
-                sh 'kubectl rollout status deployment/backend -n devops --timeout=180s'
+                sh 'kubectl rollout status deployment/backend -n devops --timeout=600s'
 
                 // 6. Frontend (Deployment + Service NodePort)
                 sh 'kubectl apply -f k8s/frontend.yaml'
